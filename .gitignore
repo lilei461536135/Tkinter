@@ -1,0 +1,84 @@
+# -*- coding: utf-8 -*-
+
+import re
+import tkinter as tk
+from tkinter import ttk
+import threading
+
+datadict = {"larry": ["haoren","huairen"], "laji": "woshi", "melody": ["nvshen", "haonvhai"]}
+
+
+def callback_add():
+    print("hello")
+
+
+class GUIMainWin:
+    def __init__(self):
+        self.root = tk.Tk()
+        self.root.title("Set BIOS")
+        self.entry = EntryClass(self.root, 16, 1, 0)
+        self.combobox = ComboBoxClass(self.root, 16, 1, 1)
+        self.button_get = ButtonClass(self.root, "Check", 2, 0, None)
+        self.button_add = ButtonClass(self.root, "Add", 2, 1, callback_add)
+        self.button_add = ButtonClass(self.root, "Open", 3, 0, None)
+        self.button_add = ButtonClass(self.root, "Save", 3, 1, None)
+        thread = threading.Thread(target=self.daemon_thread)
+        thread.setDaemon(True)
+        thread.start()
+
+    def daemon_thread(self):
+        while 1:
+            if self.entry.get_string() != "":
+                self.entry.match_string(datadict)
+
+    def loop(self):
+        self.root.mainloop()
+
+
+class EntryClass:
+    def __init__(self, top, width, row, column):
+        self.string = tk.StringVar()
+        self.entry = ttk.Entry(top, width=width, textvariable=self.string)
+        self.entry.grid(row=row, column=column)
+
+    def get_string(self):
+        text = self.string.get()
+        return text
+
+    def match_string(self, data_dict):
+        matched_list = []
+        string = self.get_string()
+        pattern = re.compile(string, re.I)
+        for key in data_dict.keys():
+            if re.search(pattern, key):
+                matched_list.append(key)
+        print(matched_list)
+
+
+class ListBoxClass:
+    def __init__(self, top, width, row, column, lists):
+        self.string = tk.StringVar()
+        self.string.set(lists)
+        self.listbox = tk.Listbox(top, width=width, listvariable=self.string)
+        self.listbox.grid(row=row, column=column)
+
+
+class ComboBoxClass:
+    def __init__(self, top, width, row, column):
+        string = tk.StringVar()
+        self.combobox = ttk.Combobox(top, width=width, textvariable=string)
+        self.combobox['value'] = []
+        self.combobox.grid(row=row, column=column)
+
+
+class ButtonClass:
+    def __init__(self, top, text, row, column, command):
+        self.button = ttk.Button(top, text=text, command=command)
+        self.button.grid(row=row, column=column)
+
+
+if __name__ == "__main__":
+    gui = GUIMainWin()
+    gui.loop()
+
+
